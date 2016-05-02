@@ -1,10 +1,11 @@
 #Nathan Kowaleski
-#Daily 18
-#twisted 3
-#paradigms_final.py
-#client
-#4/22/16
+#Shaquille Johnson
+#Programming Paradigms Spring 2016
+#Final project
+#client.py
+#5/4
 
+from gamestate import *
 from twisted.internet.protocol import ClientFactory
 from twisted.internet.protocol import Protocol
 from twisted.internet import reactor
