@@ -1,5 +1,6 @@
-#Shaquille Johnson Paradigms 2016
-
+#Shaquille Johnson
+#Nathan Kowaleski
+#Programming Paradigms Spring 2016
 #9033: port for ssh for localhost
 #9062: client connection
 #9063: data connection
