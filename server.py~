@@ -83,27 +83,25 @@ class DataFactory(ClientFactory):
 		return self.p
 
 #command connection
-class Command(LineReceiver):
+class Command(Protocol):
 	def __init__(self):
-		self.userName = ''
+		self.count = 0
 	def connectionMade(self):
-		print 'ConnctionMadeTo', str(self.transport.getPeer())
-		factory.clients.append(self)
-		self.sendLine("User name: ")
-	def lineReceived(self,data):
-		self.userName = data
+		
+	def dataReceived(self,data):
+		#once established and sent connect to next one
+		#print "Command: ", data
+		if data == 'data\r\n' and self.count == 0:
+			reactor.connectTCP('student01.cse.nd.edu',9063,date)
+			self.count = 1
 	def connectionLost(self,reason):
-		print "connection lost to,", str(self.transport.getPeer())
-		factory.clients.remove(self)
-	def sendLine(self,data):
-		self.transport.write(data)
-class CommandFactory(ServerFactory):
+		 
+class CommandFactory(ClientFactory):
 	def buildProtocol(self,addr):
 		return Command()
 
 #Beginning connect to computers
 def main():
-	factory.clients = []
 	f = CommandFactory()
 	reactor.listenTCP(9062,f)
 	reactor.run()
