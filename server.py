@@ -20,69 +20,6 @@ from twisted.internet.protocol import Factory
 from twisted.internet.protocol import ClientFactory
 from twisted.web.http_headers import Headers
 
-#data connection, make the transfer of things complete
-class GetJSON(LineReceiver):
-	def __init__(self):
-		#self.d = DeferredQueue()
-		#self.buffer = None
-		#self.client = None
-		pass
-	def connectionMade(self):
-		print 'connetion made to ', str(self.transport.getPeer())
-		#factory = protocol.ClientFactory()
-		#factory.protocol = ClientProtocol
-		#factory.server = self
-		reactor.connectTCP("student03.cse.nd.edu",22,ssh)
-		
-	def dataReceived(self, data):
-		print "Received ", data
-		#if self.client:
-		#	print data
-		#	self.d.put(data)
-		#	self.d.get().addCallback(self.clientWrite)
-		#else:
-		#	self.buffer = data
-		#	self.d.get().addCallback(self.clientWrite)
-		ssh.getProt().clientWrite(data)
-	def connectionLost(self, reason):
-		print "connection lost to", str(self.transport.getPeer()), "because", reason
-		#reactor.stop()
-	def clientWrite(self,data):
-		self.transport.write(data)
-
-#ssh connection details
-class SSH(LineReceiver):
-	def connectionMade(self):
-		pass
-
-	def dataReceived(self,data):
-		date.getProt().clientWrite(data)
-	
-	def connectionLost(self, reason):
-		print "connection lost to", str(self.transport.getPeer()), "because", reason
-	
-	def clientWrite(self,data):
-		self.transport.write(data)
-
-class SSHFactory(ClientFactory):
-	def __init__(self):
-		self.protocol = SSH()
-	
-	def buildProtocol(self,addr):
-		return self.protocol
-
-	def getProt(self):
-		return self.protocol
-
-class DataFactory(ClientFactory):
-	#protocol = GetJSON()
-	def __init__(self):
-		self.p = GetJSON()
-	def buildProtocol(self,addr):
-		return self.p
-	def getProt(self):
-		return self.p
-
 #command connection
 class Command(LineReceiver):
 	def __init__(self):
