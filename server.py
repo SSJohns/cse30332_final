@@ -22,16 +22,15 @@ from twisted.web.http_headers import Headers
 
 #command connection
 class Command(LineReceiver):
-	def __init__(self, factory):
+	def __init__(self, factory, currPos):
 		self.factory = factory
-		self.user = None
+		#self.user = None
+		self.id = currPos
 	def connectionMade(self):
-		print 'ConnctionMadeTo', str(self.transport.getPeer())
+		print 'ConnctionMadeTo %s, client %d' % (str(self.transport.getPeer()), self.id)
 		self.factory.clients.append(self)
-		self.sendLine("User name: ")
+		#self.sendLine("User name: ")
 	def lineReceived(self,data):
-		if self.user is None:
-			self.user = data
 		self.sendLine("Echo: "+data)
 		self.transport.write('>>> ')
 	def connectionLost(self,reason):
@@ -43,7 +42,7 @@ class CommandFactory(Factory):
 	def __init__(self):
 		self.clients = []
 	def buildProtocol(self,addr):
-		return Command(self)
+		return Command(self, len(self.clients))
 
 #Beginning connect to computers
 def main():
