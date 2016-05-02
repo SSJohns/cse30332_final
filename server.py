@@ -30,12 +30,13 @@ class Command(LineReceiver):
 		self.sendLine("User name: ")
 	def lineReceived(self,data):
 		self.userName = data
+		print data
 	def connectionLost(self,reason):
 		print "connection lost to,", str(self.transport.getPeer())
 		factory.clients.remove(self)
 	def sendLine(self,data):
 		self.transport.write(data)
-class CommandFactory(ServerFactory):
+class CommandFactory(Factory):
 	def buildProtocol(self,addr):
 		return Command()
 
