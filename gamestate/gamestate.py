@@ -11,16 +11,42 @@ import pygame
 from pygame.locals import *
 import spritesheet
 
+def sprite_sheet_load(colorKey, spriteLocX, spriteLocY, spriteSizeX, spriteSizeY, fileName):
+    '''Purpose: to extract a sprite from a sprite sheet at the chosen location'''
+    '''credit to Stackover flow user hammyThePig for original code'''
+
+    sheet = pygame.image.load(fileName).convert() #loads up the sprite sheet. convert makes sure the pixel format is coherent
+    sheet.set_colorkey(colorKey) #sets the color key
+
+    sprite = sheet.subsurface(pygame.Rect(spriteLocX, spriteLocY, spriteSizeX, spriteSizeY)) #grabs the sprite at this location
+
+    return sprite
+
+
 class Player(pygame.sprite.Sprite):
 	def __init__(self, gs=None):
 		pygame.sprite.Sprite.__init__(self)
 		self.gs = gs
 		ss = spritesheet.spritesheet("./media/frog.png")
-		self.image = ss.image_at((0,0,24,24))		
+		self.image = ss.image_at((0,0,24,24),(0,0,0))		
 		self.images = []
 		self.rect = self.image.get_rect()
 		self.rect.centerx = 100.0
 		self.rect.centery = 100.0
+
+		spriteXLoc = 0 #starting x location for the sprite
+		spriteYLoc = 0 #starting y location for the sprite
+		spriteXSize = 38
+		spriteYSize = 35
+
+		#Grab the images for the main character's walking poses
+		#for y in range(0,2): #handle the columns of sprite sheet
+		#	for x in range(0,10): #handle the rows of sprite sheet
+		#		print spriteXLoc, spriteYLoc, spriteXSize,spriteYSize
+		#		self.images.append(sprite_sheet_load((0,0,0), spriteXLoc, spriteYLoc, spriteXSize, spriteYSize, "./media/frog.png"))
+		#		spriteXLoc += spriteXSize
+		#		spriteXLoc = 0 #reset the inital x value
+		#		spriteYLoc += spriteYSize #increment the y value
 
 	def tick(self):
 		# get the mouse x and y position on the screen
@@ -30,27 +56,20 @@ class Player(pygame.sprite.Sprite):
 				return
 			else:
 				pass
-
-		#orig_rect = self.image.get_rect()
-		x = float(mx - self.rect.center[0])
-		y = float(my - self.rect.center[1])
-		self.image = self.rot_center(self.orig_image, 315 - 180*math.atan2(y, x)/math.pi)
+		pressed = pygame.key.get_pressed()
+		#self.image = self.rot_center(self.orig_image, 315 - 180*math.atan2(y, x)/math.pi)
 		if pressed[pygame.K_w]:
-			self.rect.y -= self.rect.height/50.
-			self.image = self.playerImages[self.w%9]
-			self.w = self.w + 1
+			self.rect.y -= self.rect.height
+			#self.image = self.images[13]
    		elif pressed[pygame.K_s]:
-			self.rect.y += self.rect.height/50.
-			self.image = self.playerImages[self.s%9+18]
-			self.s = self.s + 1
+			self.rect.y += self.rect.height
+			#self.image = self.images[13]
 		elif pressed[pygame.K_a]:
-			self.rect.x -= self.rect.width/50.
-			self.image = self.playerImages[self.a%9+9]
-			seld.a = self.a + 1
+			self.rect.x -= self.rect.width
+			#self.image = self.images[31]
     		elif pressed[pygame.K_d]:
-			self.rect.x += self.rect.width/50.
-			self.image = self.playerImages[self.d%9+27]
-			self.d = self.d + 1
+			self.rect.x += self.rect.width
+			#self.image = self.images[31]
 			# code to calculate the angle between my current
 			# direction and the mouse position (see math.atan2)
 			# ... use this angle to rotate the image so that it
@@ -59,10 +78,17 @@ class Enemy(pygame.sprite.Sprite):
 	def __init__(self, gs=None):
 		pygame.sprite.Sprite.__init__(self)
 		self.gs = gs
-		#self.image = pygame.image.load("media/something.png")
+		ss = spritesheet.spritesheet("./media/frog.png")
+		self.image = ss.image_at((0,0,24,24),(0,0,0))		
+		self.images = []
 		self.rect = self.image.get_rect()
-		self.rect.centerx = 640
-		self.rect.centery = 640
+		self.rect.centerx = 100.0
+		self.rect.centery = 100.0
+
+		spriteXLoc = 0 #starting x location for the sprite
+		spriteYLoc = 0 #starting y location for the sprite
+		spriteXSize = 38
+		spriteYSize = 35
 
 	def tick(self):
 			pass
@@ -78,16 +104,19 @@ class GameSpace:
 		self.clock = pygame.time.Clock()
 		#self.lasersound = pygame.mixer.Sound("media/something.wav")
 		self.player = Player(self)
+		self.enemies = []
 
 		while 1:
 			self.clock.tick(60)
 			for event in pygame.event.get():
 				if event.type == QUIT:
 					return
-
 			self.player.tick()
 			self.screen.fill(self.black)
 			self.screen.blit(bg, (0,0))
+			for enemy in self.enemies:
+				enemy.tick()
+				self.screen.blit(enemy.image, enemy.rect)
 			self.screen.blit(self.player.image, self.player.rect)
 			pygame.display.flip()
 			pygame.display.update()
