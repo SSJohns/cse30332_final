@@ -78,10 +78,17 @@ class Enemy(pygame.sprite.Sprite):
 	def __init__(self, gs=None):
 		pygame.sprite.Sprite.__init__(self)
 		self.gs = gs
-		#self.image = pygame.image.load("media/something.png")
+		ss = spritesheet.spritesheet("./media/frog.png")
+		self.image = ss.image_at((0,0,24,24),(0,0,0))		
+		self.images = []
 		self.rect = self.image.get_rect()
-		self.rect.centerx = 640
-		self.rect.centery = 640
+		self.rect.centerx = 100.0
+		self.rect.centery = 100.0
+
+		spriteXLoc = 0 #starting x location for the sprite
+		spriteYLoc = 0 #starting y location for the sprite
+		spriteXSize = 38
+		spriteYSize = 35
 
 	def tick(self):
 			pass
@@ -97,16 +104,19 @@ class GameSpace:
 		self.clock = pygame.time.Clock()
 		#self.lasersound = pygame.mixer.Sound("media/something.wav")
 		self.player = Player(self)
+		self.enemies = []
 
 		while 1:
 			self.clock.tick(60)
 			for event in pygame.event.get():
 				if event.type == QUIT:
 					return
-
 			self.player.tick()
 			self.screen.fill(self.black)
 			self.screen.blit(bg, (0,0))
+			for enemy in self.enemies:
+				enemy.tick()
+				self.screen.blit(enemy.image, enemy.rect)
 			self.screen.blit(self.player.image, self.player.rect)
 			pygame.display.flip()
 			pygame.display.update()

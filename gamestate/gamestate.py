@@ -91,7 +91,13 @@ class Enemy(pygame.sprite.Sprite):
 		spriteYSize = 35
 
 	def tick(self):
-			pass
+			self.rect.y = self.x
+			self.rect.x = self.y
+			#self.image = self.images[31]
+			# code to calculate the angle between my current
+			# direction and the mouse position (see math.atan2)
+			# ... use this angle to rotate the image so that it
+			# faces the mouse
 
 
 class GameSpace: 
