@@ -1,9 +1,10 @@
 #Nathan Kowaleski
 #Shaquille Johnson
-#Programming Paradigms Spring 2016
-#Final project
-#client.py
+#Programming Paradigms
+#Spring 2016
+#Final Project
 #5/4
+#client.py
 
 import json
 

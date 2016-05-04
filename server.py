@@ -1,6 +1,10 @@
-#Shaquille Johnson
 #Nathan Kowaleski
-#Programming Paradigms Spring 2016 Final
+#Shaquille Johnson
+#Programming Paradigms
+#Spring 2016
+#Final Project
+#5/4
+#server.py
 
 #9063: port for ssh for localhost
 #should be run on student02
