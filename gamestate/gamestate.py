@@ -193,7 +193,6 @@ class Enemy(pygame.sprite.Sprite):
 			elif self.istruck == 0 and self.rect.centerx > 550:
 				self.rth()
 	
-
 class GameSpace:
 	def enemyUpdate(self,data):
 		for enemy in enemies:
@@ -243,25 +242,25 @@ class GameSpace:
 
 		while 1:
 			self.clock.tick(60)
-			if (pygame.key.get_pressed()[pygame.K_UP] != 0):
+			if (pygame.key.get_pressed()[pygame.K_UP] != 0 or pygame.key.get_pressed()[pygame.K_w] != 0):
 				self.players[self.playerid].moveup = True
 			
 			else :
 				self.players[self.playerid].moveup = False
 
-			if (pygame.key.get_pressed()[pygame.K_DOWN] != 0):
+			if (pygame.key.get_pressed()[pygame.K_DOWN] != 0 or pygame.key.get_pressed()[pygame.K_s] != 0):
 				self.players[self.playerid].movedown = True
 
 			else:
 				self.players[self.playerid].movedown = False
 
-			if (pygame.key.get_pressed()[pygame.K_RIGHT] != 0):
+			if (pygame.key.get_pressed()[pygame.K_RIGHT] != 0 or pygame.key.get_pressed()[pygame.K_d] != 0):
 				self.players[self.playerid].moveright = True
 
 			else:
 				self.players[self.playerid].moveright = False
 			
-			if (pygame.key.get_pressed()[pygame.K_LEFT] != 0):
+			if (pygame.key.get_pressed()[pygame.K_LEFT] != 0 or pygame.key.get_pressed()[pygame.K_a] != 0):
 				self.players[self.playerid].moveleft = True
 
 			else:
