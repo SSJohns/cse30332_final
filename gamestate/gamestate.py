@@ -1,7 +1,9 @@
 #Nathan Kowaleski
 #Shaquille Johnson
+#Programming Paradigms
+#Spring 2016
 #Final Project
-#4/4/16
+#5/4
 #gamestate.py
 
 import math
