@@ -17,6 +17,31 @@ from twisted.internet import reactor, stdio
 SERVER_HOST = 'student02.cse.nd.edu'
 SERVER_PORT = 9063
 
+#data connection
+class Data(LineReceiver):
+	def connectionMade(self):
+		comFac.getProt().clientWrite("data")
+	def dataReceived(self,data):
+		cliFac.getProt().clientWrite(data)
+
+	def clientWrite(self,data):
+		self.transport.write(data)
+
+class DataFactory(Factory):
+	def __init__(self):
+		self.p = Data()
+	def buildProtocol(self,addr):
+		return self.p
+	def getProt(self):
+		return self.p
+
+def is_json(myjson):
+	try:
+		json_object = json.loads(myjson)
+	except ValueError, e:
+		return False
+	return True
+
 #overwrite functions from Protocol class
 #defines what this connection does when certain events happen
 class ClientConnection(LineReceiver):
@@ -26,10 +51,17 @@ class ClientConnection(LineReceiver):
 	def connectionMade(self):#when connection is made send data
 		print 'new connection made to', SERVER_HOST, 'port', SERVER_PORT
 		self.gs.main(self)
+		reactor.listenTCP(9033,date)
 
 	def lineReceived(self, data):#when data is recieved print it
-		print json.loads(data)
-
+		print data
+		if is_json(data):
+			data_dumps = json.loads(data)
+			print data_dumps
+			self.gs.enemyUpdate(data_dumps)
+		else:
+			data_enemy = data.split(':')
+			self.gs.newEnemy(int(data_enemy[1]))
 	def connectionLost(self, reason):#when connection is lost stop reactor
 		print 'lost connection to', SERVER_HOST, 'port', SERVER_PORT
 		#reactor.stop()
@@ -47,5 +79,8 @@ class ClientConnFactory(ClientFactory):
 
 
 if __name__ == '__main__':
-	reactor.connectTCP(SERVER_HOST, SERVER_PORT, ClientConnFactory())
+	
+	date = DataFactory()
+	cliFac =  ClientConnFactory()
+	reactor.connectTCP(SERVER_HOST, SERVER_PORT,cliFac)
 	reactor.run()

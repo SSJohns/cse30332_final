@@ -26,22 +26,24 @@ from twisted.web.http_headers import Headers
 class Command(LineReceiver):
 	def __init__(self, factory, currPos):
 		self.factory = factory
-		self.id = currPos
+		self.id = int(currPos)
 	def connectionMade(self):
 		print 'ConnctionMadeTo %s, client %d' % (str(self.transport.getPeer()), self.id)
 		for client in self.factory.clients:
-			client.gs.newEnemy(self.id)
-		self.factory.clients.append(self)
+			print "send"
+			self.transport.getHandle().sendall('newEnemy:' + str(self.id)+"\r\n")
+		self.factory.clients.append(self.id)
 
 	def dataReceived(self,data):
+		print data
 		position = json.loads(data)
 		position.update({'id': int(self.id)})
-		print position
 		for client in self.factory.clients:
-			client.transport.getHandle().sendall(json.dumps(position) + "\r\n")
+			print "send"
+			self.transport.getHandle().sendall(json.dumps(position))
 	def connectionLost(self,reason):
 		print "connection lost to,", str(self.transport.getPeer())
-		self.factory.clients.remove(self)
+		self.factory.clients.remove(self.id)
 
 class CommandFactory(Factory):
 	def __init__(self):
