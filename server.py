@@ -28,11 +28,15 @@ class Command(LineReceiver):
 		self.id = currPos
 	def connectionMade(self):
 		print 'ConnctionMadeTo %s, client %d' % (str(self.transport.getPeer()), self.id)
+		for client in self.factory.clients:
+			client.gs.newEnemy(self.id)
 		self.factory.clients.append(self)
-		#self.sendLine("User name: ")
-	def lineReceived(self,data):
-		self.sendLine("Echo: "+data)
-		self.transport.write('>>> ')
+
+	def dataReceived(self,data):
+		position = data
+		position['id'] = self.id
+		for client in factory.clients:
+			client.transport.write(position + "\r\n")
 	def connectionLost(self,reason):
 		print "connection lost to,", str(self.transport.getPeer())
 		self.factory.clients.remove(self)

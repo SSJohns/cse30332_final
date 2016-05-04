@@ -5,6 +5,8 @@
 #client.py
 #5/4
 
+import json
+
 from gamestate import *
 from twisted.internet.protocol import ClientFactory
 from twisted.protocols.basic import LineReceiver
@@ -26,13 +28,13 @@ class ClientConnection(LineReceiver):
 		self.gs.main(self)
 
 	def lineReceived(self, data):#when data is recieved print it
-		print "Echo: ", data
+		self.gs.enemy
 
 	def connectionLost(self, reason):#when connection is lost stop reactor
 		print 'lost connection to', SERVER_HOST, 'port', SERVER_PORT
 		#reactor.stop()
 	def write(self,data):
-		self.transport.write(data)
+		self.transport.getHandle().sendall(data+"\r\n")
 
 #class that creates instances of ClientConnection Class
 class ClientConnFactory(ClientFactory):

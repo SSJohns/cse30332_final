@@ -5,11 +5,14 @@
 #gamestate.py
 
 import math
+import json
 import sys
 import os
 import pygame
 from pygame.locals import *
 import spritesheet
+
+enemies = []
 
 def sprite_sheet_load(colorKey, spriteLocX, spriteLocY, spriteSizeX, spriteSizeY, fileName):
     '''Purpose: to extract a sprite from a sprite sheet at the chosen location'''
@@ -61,16 +64,16 @@ class Player(pygame.sprite.Sprite):
 		#self.image = self.rot_center(self.orig_image, 315 - 180*math.atan2(y, x)/math.pi)
 		if pressed[pygame.K_w]:
 			self.rect.y -= 5
-			self.image = self.images[13]
+			#self.image = self.images[13]
    		elif pressed[pygame.K_s]:
 			self.rect.y += 5
-			self.image = self.images[13]
+			#self.image = self.images[13]
 		elif pressed[pygame.K_a]:
 			self.rect.x -= 5
-			self.image = self.images[31]
+			#self.image = self.images[31]
     		elif pressed[pygame.K_d]:
 			self.rect.x += 5
-		self.cliFac.write({"x":self.rect.x,"y":self.rect.y})
+		self.cliFac.write(json.dumps({"x":self.rect.x,"y":self.rect.y}))
 			#self.image = self.images[31]
 			# code to calculate the angle between my current
 			# direction and the mouse position (see math.atan2)
@@ -102,7 +105,11 @@ class Enemy(pygame.sprite.Sprite):
 			# faces the mouse
 
 
+
 class GameSpace: 
+	def newEnemy(self,name):
+		name = Enemy()
+		enemies.append(name)
 	def main(self,cliFac):
 		pygame.init()
 		bg = pygame.image.load("./media/6657.png")
@@ -111,7 +118,6 @@ class GameSpace:
 		self.screen = pygame.display.set_mode(self.size)
 		self.clock = pygame.time.Clock()
 		self.player = Player(self,cliFac)
-		self.enemies = []
 
 		opening = pygame.image.load("./media/Frogger.jpg")
 
