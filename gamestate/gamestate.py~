@@ -59,16 +59,16 @@ class Player(pygame.sprite.Sprite):
 		pressed = pygame.key.get_pressed()
 		#self.image = self.rot_center(self.orig_image, 315 - 180*math.atan2(y, x)/math.pi)
 		if pressed[pygame.K_w]:
-			self.rect.y -= self.rect.height
+			self.rect.y -= 24
 			#self.image = self.images[13]
    		elif pressed[pygame.K_s]:
-			self.rect.y += self.rect.height
+			self.rect.y += 24
 			#self.image = self.images[13]
 		elif pressed[pygame.K_a]:
-			self.rect.x -= self.rect.width
+			self.rect.x -= 24
 			#self.image = self.images[31]
     		elif pressed[pygame.K_d]:
-			self.rect.x += self.rect.width
+			self.rect.x += 24
 			#self.image = self.images[31]
 			# code to calculate the angle between my current
 			# direction and the mouse position (see math.atan2)
@@ -91,11 +91,17 @@ class Enemy(pygame.sprite.Sprite):
 		spriteYSize = 35
 
 	def tick(self):
-			pass
+			self.rect.y = self.x
+			self.rect.x = self.y
+			#self.image = self.images[31]
+			# code to calculate the angle between my current
+			# direction and the mouse position (see math.atan2)
+			# ... use this angle to rotate the image so that it
+			# faces the mouse
 
 
 class GameSpace: 
-	def main(self):
+	def main(self,cliFac):
 		pygame.init()
 		bg = pygame.image.load("./media/6657.png")
 		self.size = self.width, self.height = 480, 360

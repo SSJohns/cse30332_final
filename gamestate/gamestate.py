@@ -24,7 +24,7 @@ def sprite_sheet_load(colorKey, spriteLocX, spriteLocY, spriteSizeX, spriteSizeY
 
 
 class Player(pygame.sprite.Sprite):
-	def __init__(self, gs=None):
+	def __init__(self, gs=None,cliFac):
 		pygame.sprite.Sprite.__init__(self)
 		self.gs = gs
 		ss = spritesheet.spritesheet("./media/frog.png")
@@ -59,16 +59,17 @@ class Player(pygame.sprite.Sprite):
 		pressed = pygame.key.get_pressed()
 		#self.image = self.rot_center(self.orig_image, 315 - 180*math.atan2(y, x)/math.pi)
 		if pressed[pygame.K_w]:
-			self.rect.y -= self.rect.height
+			self.rect.y -= 24
 			#self.image = self.images[13]
    		elif pressed[pygame.K_s]:
-			self.rect.y += self.rect.height
+			self.rect.y += 24
 			#self.image = self.images[13]
 		elif pressed[pygame.K_a]:
-			self.rect.x -= self.rect.width
+			self.rect.x -= 24
 			#self.image = self.images[31]
     		elif pressed[pygame.K_d]:
-			self.rect.x += self.rect.width
+			self.rect.x += 24
+		cliFac.write({"x":self.rect.x,"y":self.rect.y})
 			#self.image = self.images[31]
 			# code to calculate the angle between my current
 			# direction and the mouse position (see math.atan2)
@@ -101,7 +102,7 @@ class Enemy(pygame.sprite.Sprite):
 
 
 class GameSpace: 
-	def main(self):
+	def main(self,cliFac):
 		pygame.init()
 		bg = pygame.image.load("./media/6657.png")
 		self.size = self.width, self.height = 480, 360
@@ -109,7 +110,7 @@ class GameSpace:
 		self.screen = pygame.display.set_mode(self.size)
 		self.clock = pygame.time.Clock()
 		#self.lasersound = pygame.mixer.Sound("media/something.wav")
-		self.player = Player(self)
+		self.player = Player(self,cliFac)
 		self.enemies = []
 
 		while 1:

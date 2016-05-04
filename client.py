@@ -23,7 +23,7 @@ class ClientConnection(LineReceiver):
 
 	def connectionMade(self):#when connection is made send data
 		print 'new connection made to', SERVER_HOST, 'port', SERVER_PORT
-		self.gs.main()
+		self.gs.main(self)
 
 	def lineReceived(self, data):#when data is recieved print it
 		print "Echo: ", data
@@ -31,6 +31,8 @@ class ClientConnection(LineReceiver):
 	def connectionLost(self, reason):#when connection is lost stop reactor
 		print 'lost connection to', SERVER_HOST, 'port', SERVER_PORT
 		#reactor.stop()
+	def write(self,data):
+		self.transport.write(data)
 
 #class that creates instances of ClientConnection Class
 class ClientConnFactory(ClientFactory):
