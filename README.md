@@ -9,7 +9,7 @@ A game the uses the twisted and pygame libraries to connect multiple players.
 	
 
 ###To start the game:
-	Run the server and have any others connect as clients
+	Run the server.py on student02 and have any others connect as clients by running client.py on their own machine. 
 
 ##System Requirements
 	Game has been tested on Linux Red hat machines, a Mac OSX 10.9 system, and an Ubuntu virtual machine. The main method of game deployment is the command line and the system needs both the pygame and twisted libraries installed.
