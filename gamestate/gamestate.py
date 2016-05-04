@@ -18,20 +18,21 @@ class Background(pygame.sprite.Sprite):
         self.rect.left, self.rect.top = location
 
 class Player(pygame.sprite.Sprite):
-	def __init__(self, isred, gs=None):
+	def __init__(self, isred, gs=None,cliFac):
+		self.cliFac = cliFac
 		pygame.sprite.Sprite.__init__(self)
 		self.gs = gs
 		self.isred = isred
 		
 		if self.isred == 1:
-			self.orig_image = pygame.image.load("media/redturtle.png")
+			self.orig_image = pygame.image.load("./gamestate/media/redturtle.png")
 		else:
-			self.orig_image = pygame.image.load("media/blueturtle.png")
+			self.orig_image = pygame.image.load("./gamestate/media/blueturtle.png")
 			
 		
 		self.image = self.orig_image
 		self.rect = self.image.get_rect()
-		self.splatimage = pygame.image.load("media/splat.png")
+		self.splatimage = pygame.image.load("./gamestate/media/splat.png")
 		if self.isred == 1:
 			self.rect.centery = 25.0
 		else:
@@ -165,11 +166,11 @@ class Enemy(pygame.sprite.Sprite):
 		self.gs = gs
 		self.istruck = istruck
 		if self.istruck == 1:
-			self.image = pygame.image.load("media/truck.png")
+			self.image = pygame.image.load("./gamestate/media/truck.png")
 			self.speed = -1
 			
 		else:
-			self.image = pygame.image.load("media/car.png")
+			self.image = pygame.image.load("./gamestate/media/car.png")
 			self.speed = 2
 			
 		self.rect = self.image.get_rect()
@@ -193,24 +194,43 @@ class Enemy(pygame.sprite.Sprite):
 				self.rth()
 	
 
-class GameSpace: 
-	def main(self):
+class GameSpace:
+	def enemyUpdate(self,data):
+		for enemy in enemies:
+			if enemy['id'] == data['id']:
+				enemy['x'] = data['x']
+				enemy['y'] = data['y']
+	def newEnemy(self,name):
+		enemy = Enemy()
+		ss = spritesheet.spritesheet("./media/frog.png")
+		image = ss.image_at((0,0,24,24),(0,0,0))		
+		rect = image.get_rect()
+		rect.centerx = 350
+		rect.centery = 480-20*(len(enemies))
+		enemies.append({
+				'id':name,
+				'enemy':enemy,
+				'x':rect.centerx,
+				'y':rect.centery,
+				'rect':rect,
+				'image':image})
+	def main(self,factory):
 		self.numberofplayers = 1
 		pygame.init()
 		self.redpoints = 0
 		self.bluepoints = 0
 		self.redfont = pygame.font.Font(None, 36)
 		self.bluefont = pygame.font.Font(None, 36)
-		self.bg = Background('media/bg.png', [0,0])
+		self.bg = Background('./gamestate/media/bg.png', [0,0])
 		self.size = self.width, self.height = 500, 500
 		self.black = 0, 0, 0
 		self.screen = pygame.display.set_mode(self.size)
 		self.clock = pygame.time.Clock()
-		self.player = Player(0, self)
+		self.player = Player(0, self, cliFac)
 		self.enemy = []
 		self.players = {}
-		self.splatsound = pygame.mixer.Sound("media/splat.wav")
-		self.chimesound = pygame.mixer.Sound("media/chime.wav")
+		self.splatsound = pygame.mixer.Sound("./gamestate/media/splat.wav")
+		self.chimesound = pygame.mixer.Sound("./gamestate/media/chime.wav")
 		self.enemy.append(Enemy(1, [500,175], self))
 		self.enemy.append(Enemy(1, [250,275], self))
 		self.enemy.append(Enemy(1, [375,375], self))
