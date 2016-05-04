@@ -5,149 +5,287 @@
 #gamestate.py
 
 import math
-import json
 import sys
 import os
 import pygame
 from pygame.locals import *
-import spritesheet
 
-enemies = []
-
-def sprite_sheet_load(colorKey, spriteLocX, spriteLocY, spriteSizeX, spriteSizeY, fileName):
-    '''Purpose: to extract a sprite from a sprite sheet at the chosen location'''
-    '''credit to Stackover flow user hammyThePig for original code'''
-
-    sheet = pygame.image.load(fileName).convert() #loads up the sprite sheet. convert makes sure the pixel format is coherent
-    sheet.set_colorkey(colorKey) #sets the color key
-
-    sprite = sheet.subsurface(pygame.Rect(spriteLocX, spriteLocY, spriteSizeX, spriteSizeY)) #grabs the sprite at this location
-
-    return sprite
-
+class Background(pygame.sprite.Sprite):
+    def __init__(self, image_file, location):
+        pygame.sprite.Sprite.__init__(self)  #call Sprite initializer
+        self.image = pygame.image.load(image_file)
+        self.rect = self.image.get_rect()
+        self.rect.left, self.rect.top = location
 
 class Player(pygame.sprite.Sprite):
-	def __init__(self, gs,cliFac):
+	def __init__(self, isred, gs=None):
 		pygame.sprite.Sprite.__init__(self)
 		self.gs = gs
-		self.cliFac = cliFac
-		ss = spritesheet.spritesheet("./media/frog.png")
-		self.image = ss.image_at((0,0,24,24),(0,0,0))		
-		self.images = []
+		self.isred = isred
+		
+		if self.isred == 1:
+			self.orig_image = pygame.image.load("media/redturtle.png")
+		else:
+			self.orig_image = pygame.image.load("media/blueturtle.png")
+			
+		
+		self.image = self.orig_image
 		self.rect = self.image.get_rect()
-		self.rect.centerx = 100.0
-		self.rect.centery = 100.0
+		self.splatimage = pygame.image.load("media/splat.png")
+		if self.isred == 1:
+			self.rect.centery = 25.0
+		else:
+			self.rect.centery = 475.0
+			
+		self.rect.centerx = 250.0
+		self.speed = 2
+		self.moveup = False
+		self.movedown = False
+		self.moveright = False
+		self.moveleft = False
+		self.deg = 0.0
+		self.isdead = 0
+		self.respawn = 180
+		self.hp = 1
+		self.key = 0
+		self.newdeg = 0.0
+		#down, left, right, up
+		self.options = { 0 : -1.0,
+			1 : 0.0,
+			10 : 270.0,
+			11 : 315.0,
+			100 : 90.0,
+			101 : 45.0,
+			110 : -1.0,
+			111 : 0.0,
+			1000: 180.0,
+			1001 : -1.0,
+			1010 : 225.0,
+			1011 : 270.0,
+			1100 : 135.0,
+			1101 : 90.0,
+			1110 : 180.0,
+			1111 : -1.0, 
+			}
 
-		spriteXLoc = 0 #starting x location for the sprite
-		spriteYLoc = 0 #starting y location for the sprite
-		spriteXSize = 38
-		spriteYSize = 35
-
-		#Grab the images for the main character's walking poses
-		#for y in range(0,2): #handle the columns of sprite sheet
-		#	for x in range(0,10): #handle the rows of sprite sheet
-		#		print spriteXLoc, spriteYLoc, spriteXSize,spriteYSize
-		#		self.images.append(sprite_sheet_load((0,0,0), spriteXLoc, spriteYLoc, spriteXSize, spriteYSize, "./media/frog.png"))
-		#		spriteXLoc += spriteXSize
-		#		spriteXLoc = 0 #reset the inital x value
-		#		spriteYLoc += spriteYSize #increment the y value
-
+	def rth(self):
+		if self.isred == 1:
+			self.rect.centery = 25.0
+			self.deg = 180.0
+			
+		else:
+			self.rect.centery = 475.0
+			self.deg = 0.0
+			
+		self.rect.centerx = 250.0
+		self.isdead = 0
+		self.respawn = 180
+		self.image = pygame.transform.rotate(self.orig_image, (self.deg))
+		self.hp = 1
+		self.key = 0
+		
 	def tick(self):
-		# get the mouse x and y position on the screen
-		for event in pygame.event.get():
-			# determin if X was clicked, or Ctrl+W or Alt+F4 was used
-			if event.type == pygame.QUIT:
-				return
-			else:
-				pass
-		pressed = pygame.key.get_pressed()
-		#self.image = self.rot_center(self.orig_image, 315 - 180*math.atan2(y, x)/math.pi)
-		if pressed[pygame.K_w]:
-			self.rect.y -= 5
-			#self.image = self.images[13]
-   		elif pressed[pygame.K_s]:
-			self.rect.y += 5
-			#self.image = self.images[13]
-		elif pressed[pygame.K_a]:
-			self.rect.x -= 5
-			#self.image = self.images[31]
-    		elif pressed[pygame.K_d]:
-			self.rect.x += 5
-		self.cliFac.transport.getHandle().sendall(json.dumps({
-						"x":self.rect.x,
-						"y":self.rect.y}) + "\r\n")
+		if self.isdead == 1:
+			self.respawn = self.respawn - 1
+			if self.respawn < 0:
+				self.rth()
+				
+				
+		elif self.hp < 1:
+			self.isdead = 1
+			self.image = self.splatimage
+			self.speed = 2
+				
+		elif self.isred == 1 and self.rect.centery > 500:
+			self.gs.chimesound.play()
+			self.speed += 1
+			self.rect.centerx = -200
+			self.rect.centery = -200
+			self.isdead = 1
+			self.gs.redpoints = self.gs.redpoints + 1
+		
+		elif self.isred == 0 and self.rect.centery < 0:
+			self.gs.chimesound.play()
+			self.speed +=  1
+			self.rect.centerx = -200
+			self.rect.centery = -200
+			self.isdead = 1
+			self.gs.bluepoints = self.gs.bluepoints + 1
 
+		else:
+			self.key = 0
+			if self.moveup == True:
+				self.key = self.key + 1
+
+			if self.movedown == True:
+				self.key = self.key + 1000
+
+			if self.moveright == True:
+				self.key = self.key + 10
+
+			if self.moveleft == True:
+				self.key = self.key + 100
+				
+			self.newdeg = self.options[self.key]
+			if self.newdeg < 0:
+				pass
+				
+			else:
+				self.deg = self.newdeg
+				self.rect.centery -= self.speed * math.cos(math.radians(self.deg))
+				self.rect.centerx -= self.speed * math.sin(math.radians(self.deg))
+				
+			self.image = pygame.transform.rotate(self.orig_image, (self.deg))
+			if self.rect.centerx > 600 or self.rect.centerx < -100 or self.rect.centery > 600 or self.rect.centery < -100:
+				self.isdead = 1
+				self.gs.splatsound.play()
+				self.speed = 2
+			
+			else:
+				for k in self.gs.enemy:
+					if self.rect.colliderect(k.rect):
+						self.hp -= 1
+						self.gs.splatsound.play()
+						self.speed = 2
+						break
+				
+				for p in self.gs.players:
+					if self.gs.players[p].isred != self.isred and self.rect.colliderect(self.gs.players[p].rect):
+						self.hp -= 1
+						self.gs.splatsound.play()
+						self.speed = 2
+						break
+						
+						
+						
 
 class Enemy(pygame.sprite.Sprite):
-	def __init__(self, gs=None):
+	def __init__(self, istruck, location, gs=None):
 		pygame.sprite.Sprite.__init__(self)
 		self.gs = gs
-		ss = spritesheet.spritesheet("./media/frog.png")
-		self.image = ss.image_at((0,0,24,24),(0,0,0))		
-		self.images = []
+		self.istruck = istruck
+		if self.istruck == 1:
+			self.image = pygame.image.load("media/truck.png")
+			self.speed = -1
+			
+		else:
+			self.image = pygame.image.load("media/car.png")
+			self.speed = 2
+			
 		self.rect = self.image.get_rect()
-		self.rect.centerx = 100.0
-		self.rect.centery = 100.0
-		self.x = 0
-		self.y = 0
+		self.rect.centerx, self.rect.centery = location
+		
+		
+	def rth(self):
+		if self.istruck == 1:
+			self.rect.centerx = 575
+			
+		else:
+			self.rect.centerx = -50
 
-		spriteXLoc = 0 #starting x location for the sprite
-		spriteYLoc = 0 #starting y location for the sprite
-		spriteXSize = 38
-		spriteYSize = 35
 
 	def tick(self):
-		self.rect.y = self.x
-		self.rect.x = self.y
-		#self.image = self.images[31]
-		# code to calculate the angle between my current
-		# direction and the mouse position (see math.atan2)
-		# ... use this angle to rotate the image so that it
-		# faces the mouse
-
-
+			self.rect.centerx += self.speed
+			if self.istruck == 1 and self.rect.centerx < -75:
+				self.rth()
+				
+			elif self.istruck == 0 and self.rect.centerx > 550:
+				self.rth()
+	
 
 class GameSpace: 
-	#def enemyUpdate(self,data):
-	#	self.enemies[int(data['id'])]
-	def newEnemy(self,name):
-		name = Enemy()
-		enemies.append(name)
-	def main(self,cliFac):
+	def main(self):
+		self.numberofplayers = 1
 		pygame.init()
-		bg = pygame.image.load("./media/6657.png")
-		self.size = self.width, self.height = 480, 360
+		self.redpoints = 0
+		self.bluepoints = 0
+		self.redfont = pygame.font.Font(None, 36)
+		self.bluefont = pygame.font.Font(None, 36)
+		self.bg = Background('media/bg.png', [0,0])
+		self.size = self.width, self.height = 500, 500
 		self.black = 0, 0, 0
 		self.screen = pygame.display.set_mode(self.size)
 		self.clock = pygame.time.Clock()
-		self.player = Player(self,cliFac)
-
-		opening = pygame.image.load("./media/Frogger.jpg")
-
-		i = 255
-		while i > 0:
-			self.screen.fill(self.black)
-			opening = pygame.image.load("./media/Frogger.jpg")
-			opening.set_alpha(i)
-			logoimage = self.screen.blit(opening,(60,self.height/2 - 90))
-			pygame.display.flip()
-			pygame.display.update()
-			pygame.time.wait(60)
-			i = i-5
+		self.player = Player(0, self)
+		self.enemy = []
+		self.players = {}
+		self.splatsound = pygame.mixer.Sound("media/splat.wav")
+		self.chimesound = pygame.mixer.Sound("media/chime.wav")
+		self.enemy.append(Enemy(1, [500,175], self))
+		self.enemy.append(Enemy(1, [250,275], self))
+		self.enemy.append(Enemy(1, [375,375], self))
+		self.enemy.append(Enemy(0, [124,125], self))
+		self.enemy.append(Enemy(0, [250, 225], self))
+		self.enemy.append(Enemy(0, [0,325], self))
+		self.playerid = self.numberofplayers
+		self.players[ self.playerid ] = Player(self.playerid % 2, self) 
+		self.numberofplayers += 1
 
 		while 1:
 			self.clock.tick(60)
+			if (pygame.key.get_pressed()[pygame.K_UP] != 0):
+				self.players[self.playerid].moveup = True
+			
+			else :
+				self.players[self.playerid].moveup = False
+
+			if (pygame.key.get_pressed()[pygame.K_DOWN] != 0):
+				self.players[self.playerid].movedown = True
+
+			else:
+				self.players[self.playerid].movedown = False
+
+			if (pygame.key.get_pressed()[pygame.K_RIGHT] != 0):
+				self.players[self.playerid].moveright = True
+
+			else:
+				self.players[self.playerid].moveright = False
+			
+			if (pygame.key.get_pressed()[pygame.K_LEFT] != 0):
+				self.players[self.playerid].moveleft = True
+
+			else:
+				self.players[self.playerid].moveleft = False
+
 			for event in pygame.event.get():
 				if event.type == QUIT:
 					return
-			self.player.tick()
+			
+
+
+			for m in self.players:
+				self.players[m].tick()
+				
+			for i in self.enemy:
+				i.tick()	
+
 			self.screen.fill(self.black)
-			self.screen.blit(bg, (0,0))
-			for enemy in enemies:
-				enemy.tick()
-				self.screen.blit(enemy.image, enemy.rect)
-			self.screen.blit(self.player.image, self.player.rect)
-			pygame.display.flip()
-			pygame.display.update()
+			self.screen.blit(self.bg.image, self.bg.rect)
+			for n in self.players:
+				self.screen.blit(self.players[n].image, self.players[n].rect)
+				
+			for j in self.enemy:
+				self.screen.blit(j.image, j.rect)	
+				
+			self.redtext = self.redfont.render(str(self.redpoints), 1, (250, 50, 50))
+			self.redtextpos = self.redtext.get_rect()
+			self.redtextpos.right = 475
+			self.redtextpos.top = 25	
+			self.screen.blit(self.redtext, self.redtextpos)
+		
+			self.bluetext = self.bluefont.render(str(self.bluepoints), 1, (150, 150, 255))
+			self.bluetextpos = self.redtext.get_rect()
+			self.bluetextpos.right = 475
+			self.bluetextpos.top = 425	
+			self.screen.blit(self.bluetext, self.bluetextpos)
+		
+		
+			pygame.display.flip()		
+
+
+
+if __name__ == '__main__':
+	mygs = GameSpace()
+	mygs.main()
 
 
