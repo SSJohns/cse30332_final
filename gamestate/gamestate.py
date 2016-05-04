@@ -73,12 +73,11 @@ class Player(pygame.sprite.Sprite):
 			#self.image = self.images[31]
     		elif pressed[pygame.K_d]:
 			self.rect.x += 5
-		self.cliFac.write(json.dumps({"x":self.rect.x,"y":self.rect.y}))
-			#self.image = self.images[31]
-			# code to calculate the angle between my current
-			# direction and the mouse position (see math.atan2)
-			# ... use this angle to rotate the image so that it
-			# faces the mouse
+		self.cliFac.transport.getHandle().sendall(json.dumps({
+						"x":self.rect.x,
+						"y":self.rect.y}) + "\r\n")
+
+
 class Enemy(pygame.sprite.Sprite):
 	def __init__(self, gs=None):
 		pygame.sprite.Sprite.__init__(self)
@@ -89,6 +88,8 @@ class Enemy(pygame.sprite.Sprite):
 		self.rect = self.image.get_rect()
 		self.rect.centerx = 100.0
 		self.rect.centery = 100.0
+		self.x = 0
+		self.y = 0
 
 		spriteXLoc = 0 #starting x location for the sprite
 		spriteYLoc = 0 #starting y location for the sprite
@@ -96,17 +97,19 @@ class Enemy(pygame.sprite.Sprite):
 		spriteYSize = 35
 
 	def tick(self):
-			self.rect.y = self.x
-			self.rect.x = self.y
-			#self.image = self.images[31]
-			# code to calculate the angle between my current
-			# direction and the mouse position (see math.atan2)
-			# ... use this angle to rotate the image so that it
-			# faces the mouse
+		self.rect.y = self.x
+		self.rect.x = self.y
+		#self.image = self.images[31]
+		# code to calculate the angle between my current
+		# direction and the mouse position (see math.atan2)
+		# ... use this angle to rotate the image so that it
+		# faces the mouse
 
 
 
 class GameSpace: 
+	#def enemyUpdate(self,data):
+	#	self.enemies[int(data['id'])]
 	def newEnemy(self,name):
 		name = Enemy()
 		enemies.append(name)
@@ -140,7 +143,7 @@ class GameSpace:
 			self.player.tick()
 			self.screen.fill(self.black)
 			self.screen.blit(bg, (0,0))
-			for enemy in self.enemies:
+			for enemy in enemies:
 				enemy.tick()
 				self.screen.blit(enemy.image, enemy.rect)
 			self.screen.blit(self.player.image, self.player.rect)

@@ -11,6 +11,8 @@
 #ssh localhost -p 9033
 #::::::::::::::::::::::::::::::::::::
 
+import json
+
 from twisted.internet import reactor
 from twisted.internet.protocol import Protocol
 from twisted.internet.defer import DeferredQueue
@@ -24,7 +26,6 @@ from twisted.web.http_headers import Headers
 class Command(LineReceiver):
 	def __init__(self, factory, currPos):
 		self.factory = factory
-		#self.user = None
 		self.id = currPos
 	def connectionMade(self):
 		print 'ConnctionMadeTo %s, client %d' % (str(self.transport.getPeer()), self.id)
@@ -33,15 +34,15 @@ class Command(LineReceiver):
 		self.factory.clients.append(self)
 
 	def dataReceived(self,data):
-		position = data
-		position['id'] = self.id
-		for client in factory.clients:
-			client.transport.write(position + "\r\n")
+		position = json.loads(data)
+		position.update({'id': int(self.id)})
+		print position
+		for client in self.factory.clients:
+			client.transport.getHandle().sendall(json.dumps(position) + "\r\n")
 	def connectionLost(self,reason):
 		print "connection lost to,", str(self.transport.getPeer())
 		self.factory.clients.remove(self)
-	#def sendLine(self,data):
-	#	self.transport.write(data)
+
 class CommandFactory(Factory):
 	def __init__(self):
 		self.clients = []
