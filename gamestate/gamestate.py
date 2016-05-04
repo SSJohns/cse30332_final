@@ -195,7 +195,7 @@ class Enemy(pygame.sprite.Sprite):
 
 class GameSpace: 
 	def main(self):
-		self.numberofplayers = 1
+		self.numberofplayers = 0
 		pygame.init()
 		self.redpoints = 0
 		self.bluepoints = 0
