@@ -1,8 +1,10 @@
 #Nathan Kowaleski
 #Shaquille Johnson
+#Programming Paradigms
+#Spring 2016
+#Final Project
+#5/4
 #__init__.py
-#Python Primer
-#2/24/16
 
 from gamestate import *
 
