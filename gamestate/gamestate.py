@@ -5,6 +5,7 @@
 #gamestate.py
 
 import math
+import json
 import sys
 import os
 import pygame
@@ -18,7 +19,7 @@ class Background(pygame.sprite.Sprite):
         self.rect.left, self.rect.top = location
 
 class Player(pygame.sprite.Sprite):
-	def __init__(self, isred, gs=None,cliFac):
+	def __init__(self, isred, cliFac,gs):
 		self.cliFac = cliFac
 		pygame.sprite.Sprite.__init__(self)
 		self.gs = gs
@@ -225,7 +226,7 @@ class GameSpace:
 		self.black = 0, 0, 0
 		self.screen = pygame.display.set_mode(self.size)
 		self.clock = pygame.time.Clock()
-		self.player = Player(0, self, cliFac)
+		self.player = Player(0, factory,self)
 		self.enemy = []
 		self.players = {}
 		self.splatsound = pygame.mixer.Sound("./gamestate/media/splat.wav")
@@ -237,7 +238,7 @@ class GameSpace:
 		self.enemy.append(Enemy(0, [250, 225], self))
 		self.enemy.append(Enemy(0, [0,325], self))
 		self.playerid = self.numberofplayers
-		self.players[ self.playerid ] = Player(self.playerid % 2, self) 
+		self.players[ self.playerid ] = Player(self.playerid % 2, factory,self) 
 		self.numberofplayers += 1
 
 		while 1:
@@ -274,6 +275,10 @@ class GameSpace:
 
 			for m in self.players:
 				self.players[m].tick()
+				factory.transport.getHandle().sendall(json.dumps({
+						"id":m,
+						"x":self.players[m].rect.centerx,
+						"y":self.players[m].rect.centery}) + "\r\n")
 				
 			for i in self.enemy:
 				i.tick()	

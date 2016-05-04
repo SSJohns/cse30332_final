@@ -30,7 +30,6 @@ def is_json(myjson):
 class ClientConnection(LineReceiver):
 	def __init__(self, factory):#on creation pass
 		self.gs = factory.gs
-		self.p
 
 	def connectionMade(self):#when connection is made send data
 		print 'new connection made to', SERVER_HOST, 'port', SERVER_PORT

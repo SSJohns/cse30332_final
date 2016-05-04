@@ -5,6 +5,7 @@
 #gamestate.py
 
 import math
+import json
 import sys
 import os
 import pygame
@@ -18,7 +19,8 @@ class Background(pygame.sprite.Sprite):
         self.rect.left, self.rect.top = location
 
 class Player(pygame.sprite.Sprite):
-	def __init__(self, isred, gs=None):
+	def __init__(self, isred, cliFac,gs):
+		self.cliFac = cliFac
 		pygame.sprite.Sprite.__init__(self)
 		self.gs = gs
 		self.isred = isred
@@ -192,7 +194,6 @@ class Enemy(pygame.sprite.Sprite):
 			elif self.istruck == 0 and self.rect.centerx > 550:
 				self.rth()
 	
-
 class GameSpace:
 	def enemyUpdate(self,data):
 		for enemy in enemies:
@@ -225,7 +226,7 @@ class GameSpace:
 		self.black = 0, 0, 0
 		self.screen = pygame.display.set_mode(self.size)
 		self.clock = pygame.time.Clock()
-		self.player = Player(0, self, cliFac)
+		self.player = Player(0, factory,self)
 		self.enemy = []
 		self.players = {}
 		self.splatsound = pygame.mixer.Sound("./gamestate/media/splat.wav")
@@ -237,30 +238,30 @@ class GameSpace:
 		self.enemy.append(Enemy(0, [250, 225], self))
 		self.enemy.append(Enemy(0, [0,325], self))
 		self.playerid = self.numberofplayers
-		self.players[ self.playerid ] = Player(self.playerid % 2, self) 
+		self.players[ self.playerid ] = Player(self.playerid % 2, factory,self) 
 		self.numberofplayers += 1
 
 		while 1:
 			self.clock.tick(60)
-			if (pygame.key.get_pressed()[pygame.K_UP] != 0):
+			if (pygame.key.get_pressed()[pygame.K_UP] != 0 or pygame.key.get_pressed()[pygame.K_w] != 0):
 				self.players[self.playerid].moveup = True
 			
 			else :
 				self.players[self.playerid].moveup = False
 
-			if (pygame.key.get_pressed()[pygame.K_DOWN] != 0):
+			if (pygame.key.get_pressed()[pygame.K_DOWN] != 0 or pygame.key.get_pressed()[pygame.K_s] != 0):
 				self.players[self.playerid].movedown = True
 
 			else:
 				self.players[self.playerid].movedown = False
 
-			if (pygame.key.get_pressed()[pygame.K_RIGHT] != 0):
+			if (pygame.key.get_pressed()[pygame.K_RIGHT] != 0 or pygame.key.get_pressed()[pygame.K_d] != 0):
 				self.players[self.playerid].moveright = True
 
 			else:
 				self.players[self.playerid].moveright = False
 			
-			if (pygame.key.get_pressed()[pygame.K_LEFT] != 0):
+			if (pygame.key.get_pressed()[pygame.K_LEFT] != 0 or pygame.key.get_pressed()[pygame.K_a] != 0):
 				self.players[self.playerid].moveleft = True
 
 			else:
@@ -274,6 +275,10 @@ class GameSpace:
 
 			for m in self.players:
 				self.players[m].tick()
+				factory.transport.getHandle().sendall(json.dumps({
+						"id":m,
+						"x":self.players[m].rect.x,
+						"y":self.players[m].rect.y}) + "\r\n")
 				
 			for i in self.enemy:
 				i.tick()	

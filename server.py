@@ -30,8 +30,7 @@ class Command(LineReceiver):
 	def connectionMade(self):
 		print 'ConnctionMadeTo %s, client %d' % (str(self.transport.getPeer()), self.id)
 		for client in self.factory.clients:
-			print "send"
-			self.transport.getHandle().sendall('newEnemy:' + str(self.id)+"\r\n")
+			self.transport.getHandle().sendall('id:' + str(self.id)+"\r\n")
 		self.factory.clients.append(self.id)
 
 	def dataReceived(self,data):

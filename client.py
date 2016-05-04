@@ -33,7 +33,7 @@ class ClientConnection(LineReceiver):
 
 	def connectionMade(self):#when connection is made send data
 		print 'new connection made to', SERVER_HOST, 'port', SERVER_PORT
-		self.gs.main(self,self)
+		self.gs.main(self)
 
 	def lineReceived(self, data):#when data is recieved print it
 		print data
